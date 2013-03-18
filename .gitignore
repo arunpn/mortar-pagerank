@@ -1,0 +1,7 @@
+Gemfile.lock
+*.pyc
+*.class
+*.log
+tmp
+log
+.mortar-local
