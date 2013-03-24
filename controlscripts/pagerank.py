@@ -26,7 +26,7 @@ ITERATION_MAX_DIFF_PREFIX  = HDFS_OUTPUT_PREFIX + "/iteration/max_diff_"
 
 # Output Data Paths - Full path is defined in the pigscript in order to access the
 # user specific email parameter and generate unique output paths.
-OUTPUT_BUCKET = "hawk-dev-sandbox"
+OUTPUT_BUCKET = "mortar-example-output-data"
 
 
 def run_pagerank():
