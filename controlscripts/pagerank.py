@@ -2,7 +2,7 @@ from org.apache.pig.scripting import Pig
 
 # Pagerank Parameters - See README.md for more information.
 DAMPING_FACTOR        = 0.85
-CONVERGENCE_THRESHOLD = 0.05
+CONVERGENCE_THRESHOLD = 0.00004
 
 # Script Parameters
 NUM_TOP_USERS      = 1000 # The number of users with with the highest pagerank returned in the final result.
@@ -75,7 +75,7 @@ def run_pagerank():
 
         # If we're below the convergence_threshold break out of the loop.
         max_diff = float(str(iteration_stats.result("max_diff").iterator().next().get(0)))
-        if max_diff < convergence_threshold:
+        if max_diff < CONVERGENCE_THRESHOLD:
             print "Max diff %s under convergence threshold. Stopping." % max_diff
             break
         elif i == MAX_NUM_ITERATIONS-1:

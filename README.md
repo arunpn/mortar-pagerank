@@ -66,4 +66,4 @@ The damping factor determines the variance of the final output pageranks.  This 
 
 ## Convergence Threshold
 
-Pagerank is an iterative algorithm where each run uses the previous run's results.  It stops when the maximum difference of a user's pagerank from one iteration to the next is less than (CONVERGENCE\_FACTOR / number\_of\_nodes).
+Pagerank is an iterative algorithm where each run uses the previous run's results.  It stops when the maximum difference of a user's pagerank from one iteration to the next is less than the CONVERGENCE\_FACTOR.
