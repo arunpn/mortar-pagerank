@@ -44,7 +44,7 @@ This pig script takes our input data and converts it into the format that we'll 
 
 This pig script calculates updated pagerank values for each user in the twitter graph.  It takes as input the previous pagerank values calculated for each user.  This script also calculates a 'max\_diff' value that is the largest change in pagerank for any user in the graph.  This value is used by the control script to determine if its worth running another iteration to calculate even more accurate pagerank values.
 
-## pagerank\_postprocess.pig
+### pagerank\_postprocess.pig
 
 This pig script takes the final pagerank values calculated for each user and writes the top 1000 users and their pageranks to S3.
 
