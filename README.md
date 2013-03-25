@@ -20,6 +20,35 @@ Once everything is set up you can run this example by doing:
 
 By default this script will run on the 100K twitter users with the most followers and finish in approximately 40 minutes using a 5 node cluster.
 
+# What's inside
+
+## Control Script
+
+The file ./controlscripts/pagerank.py is the top level script that we're going to run in Mortar.  Using [Embedded Pig](http://help.mortardata.com/reference/pig/embedded_pig) this Jython code is responsible for running our various pig scripts in the correct order and with the correct parameters.
+
+For easier debugging of control scripts all print statements are included in the pig logs shown on the job details page in the Mortar web application.
+
+## Pig Scripts
+
+This project contains four pig scripts:
+
+### most\_popular\_users.pig
+
+This pig script takes the full Twitter follower graph from 2010 and returns the subset of the graph that includes only the top 100 000 users. 
+
+### pagerank\_preprocess.pig
+
+This pig script takes our input data and converts it into the format that we'll use for running the iterative pagerank algorithm.  This script is also responsible for setting the starting pagerank values for each user.
+
+### pagerank\_iterate.pig
+
+This pig script calculates updated pagerank values for each user in the twitter graph.  It takes as input the previous pagerank values calculated for each user.  This script also calculates a 'max\_diff' value that is the largest change in pagerank for any user in the graph.  This value is used by the control script to determine if its worth running another iteration to calculate even more accurate pagerank values.
+
+## pagerank\_postprocess.pig
+
+This pig script takes the final pagerank values calculated for each user and writes the top 1000 users and their pageranks to S3.
+
+
 # Twitter Data
 
 The twitter data we're using cames from [What is Twitter, a Social Network or a News Media?](http://an.kaist.ac.kr/traces/WWW2010.html) and was generated in early 2010.  

@@ -4,10 +4,10 @@
  * subset has the effect of finding "who do influential people think is important".
  */
 
-%default EDGES_INPUT_PATH 's3n://jpacker-dev/twitter_pagerank/twitter_follower_graph/*.gz'
-%default USERNAMES_INPUT_PATH 's3n://jpacker-dev/twitter_pagerank/twitter_usernames.gz'
-%default EDGES_OUTPUT_PATH 's3n://jpacker-dev/twitter_pagerank/twitter_influential_user_graph.gz'
-%default USERNAMES_OUTPUT_PATH 's3n://jpacker-dev/twitter_pagerank/twitter_influential_usernames.gz'
+%default EDGES_INPUT_PATH 's3n://mortar-example-data/twitter-pagerank/twitter_user_graph/*.gz'
+%default USERNAMES_INPUT_PATH 's3n://mortar-example-data/twitter-pagerank/twitter_usernames.gz'
+%default EDGES_OUTPUT_PATH 's3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/twitter_influential_user_graph.gz'
+%default USERNAMES_OUTPUT_PATH 's3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/twitter_influential_usernames.gz'
 %default N 100000
 
 edges               	=   LOAD '$EDGES_INPUT_PATH' USING PigStorage() 
@@ -41,5 +41,5 @@ influential_usernames	=	FOREACH influential_users_jnd GENERATE
 rmf $EDGES_OUTPUT_PATH;
 rmf $USERNAMES_OUTPUT_PATH;
 STORE relevant_edges INTO '$EDGES_OUTPUT_PATH' USING PigStorage();
--- forgive the repulsive space delimiter; it's to keep consistent with the input dataset
+-- Use space delimiter to keep consistent with the input dataset.
 STORE influential_usernames INTO '$USERNAMES_OUTPUT_PATH' USING PigStorage(' ');
