@@ -20,6 +20,16 @@ Once everything is set up you can run this example by doing:
 
 By default this script will run on the 100K twitter users with the most followers and finish in approximately 40 minutes using a 5 node cluster.
 
+# Twitter Data
+
+The twitter data we're using cames from [What is Twitter, a Social Network or a News Media?](http://an.kaist.ac.kr/traces/WWW2010.html) and was generated in early 2010.  
+
+# Pagerank
+
+Pagerank simulates a random walk over a graph where each follower-followed relationship is an edge. The pagerank of a user is the probability that after a large number of steps (starting at a random node) the walk will end up at the user's node. There is also a chance at each step that the walk will "teleport" to a completely random node: this added factor allows the algorithm to function even if there are "attractors" (nodes with no outgoing edges) which would otherwise trap the walk.
+
+See http://en.wikipedia.org/wiki/PageRank for a more detailed algorithm explanation.
+
 # What's inside
 
 ## Control Script
@@ -47,18 +57,6 @@ This pig script calculates updated pagerank values for each user in the twitter 
 ### pagerank\_postprocess.pig
 
 This pig script takes the final pagerank values calculated for each user and writes the top 1000 users and their pageranks to S3.
-
-
-# Twitter Data
-
-The twitter data we're using cames from [What is Twitter, a Social Network or a News Media?](http://an.kaist.ac.kr/traces/WWW2010.html) and was generated in early 2010.  
-
-# Pagerank
-
-Pagerank simulates a random walk over a graph where each follower-followed relationship is an edge. The pagerank of a user is the probability that after a large number of steps (starting at a random node) the walk will end up at the user's node. There is also a chance at each step that the walk will "teleport" to a completely random node: this added factor allows the algorithm to function even if there are "attractors" (nodes with no outgoing edges) which would otherwise trap the walk.
-
-See http://en.wikipedia.org/wiki/PageRank for a more detailed algorithm explanation.
-
 
 # Pagerank Parameters
 
