@@ -28,7 +28,7 @@ The twitter data we're using cames from [What is Twitter, a Social Network or a 
 
 Pagerank simulates a random walk over a graph where each follower-followed relationship is an edge. The pagerank of a user is the probability that after a large number of steps (starting at a random node) the walk will end up at the user's node. There is also a chance at each step that the walk will "teleport" to a completely random node: this added factor allows the algorithm to function even if there are "attractors" (nodes with no outgoing edges) which would otherwise trap the walk.
 
-See http://en.wikipedia.org/wiki/PageRank for a more detailed algorithm explanation.
+Pagerank is an iterative algorithm.  Each pass through the algorithm relies on the previous pass' output pageranks (or in the case of the first pass a set of default pageranks generated for each node).  The algorithm is considered done when a new pass through the data produces results that are "close enough" to the previous pass.  See http://en.wikipedia.org/wiki/PageRank for a more detailed algorithm explanation.
 
 # What's inside
 
