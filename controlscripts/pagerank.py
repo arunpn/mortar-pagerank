@@ -96,7 +96,6 @@ def run_pagerank():
         "OUTPUT_BUCKET": OUTPUT_BUCKET
     })
     postprocess_stats = postprocess_bound.runSingle()
-    """
 
 if __name__ == "__main__":
     run_pagerank()
