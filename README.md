@@ -18,7 +18,7 @@ Once everything is set up you can run this example by doing:
 
         mortar run pagerank --clustersize 5
 
-By default this script will run on the 100K twitter users with the most followers and finish in approximately 40 minutes using a 5 node cluster.
+By default this script will run on the 100K twitter users with the most followers and finish in a little over an hour using a 5 node cluster.
 
 # Twitter Data
 
