@@ -1,22 +1,27 @@
+# TODO
+
+- Add Patent Citation Graph example (will be referenced in blog post)
+- Rename this repo "mortar-pagerank"
+
 # Welcome to Mortar!
 
 Mortar is a platform-as-a-service for Hadoop.  With Mortar, you can run jobs on Hadoop using Apache Pig and Python without any special training.  You create your project using the Mortar Development Framework, deploy code using the Git revision control system, and Mortar does the rest.
 
 # Getting Started
 
-This Mortar project calculates pageranks for Twitter users.  To run this example:
+This Mortar project is a general framework for calculating PageRanks for any directed graph. An example script `twitter-pagerank` runs PageRank on a graph of Twitter follower relationships to find the most influential Twitter users. Alternatively, you can configure the template script `my-pagerank` to run PageRank on your own data (see the last section of this README). Either way, to get started:
 
 1. [Signup for a Mortar account](https://app.mortardata.com/signup)
 1. [Install the Mortar Development Framework](http://help.mortardata.com/#!/install_mortar_development_framework)
 1. Clone this repository to your computer and register it as a project with Mortar:
 
-        git clone git@github.com:mortardata/twitter-pagerank.git
-        cd twitter-pagerank
-        mortar register twitter-pagerank
+        git clone git@github.com:mortardata/mortar-pagerank.git
+        cd mortar-pagerank
+        mortar register mortar-pagerank
 
-Once everything is set up you can run this example by doing:
+Once everything is set up you can run the Twitter example script by doing:
 
-        mortar run pagerank --clustersize 5
+        mortar run twitter-pagerank --clustersize 5
 
 By default this script will run on the 100K twitter users with the most followers and finish in a little over an hour using a 5 node cluster.
 
@@ -32,9 +37,11 @@ Pagerank is an iterative algorithm.  Each pass through the algorithm relies on t
 
 # What's inside
 
-## Control Script
+## Control Scripts
 
-The file ./controlscripts/pagerank.py is the top level script that we're going to run in Mortar.  Using [Embedded Pig](http://help.mortardata.com/reference/pig/embedded_pig) this Jython code is responsible for running our various pig scripts in the correct order and with the correct parameters.
+The file ./controlscripts/twitter-pagerank.py is the top level script that we're going to run in Mortar.  Using [Embedded Pig](http://help.mortardata.com/reference/pig/embedded_pig) this Jython code is responsible for running our various pig scripts in the correct order and with the correct parameters.
+
+The file ./controlscripts/my-pagerank is a copy of twitter-pagerank with the default parameters removed, and extra comments added to help you configure it to run PageRank on your own data.
 
 For easier debugging of control scripts all print statements are included in the pig logs shown on the job details page in the Mortar web application.
 
@@ -46,17 +53,25 @@ This project contains four pig scripts:
 
 This pig script takes the full Twitter follower graph from 2010 and returns the subset of the graph that includes only the top 100 000 users. 
 
+### my_preprocessing_script.pig
+
+This template script shows steps you might take to generate a graph from your own data that the PageRank scripts can take as input.
+
 ### pagerank\_preprocess.pig
 
-This pig script takes our input data and converts it into the format that we'll use for running the iterative pagerank algorithm.  This script is also responsible for setting the starting pagerank values for each user.
+This pig script takes an input graph and converts it into the format that we'll use for running the iterative pagerank algorithm. This script is also responsible for setting the starting pagerank values for each node.
 
 ### pagerank\_iterate.pig
 
-This pig script calculates updated pagerank values for each user in the twitter graph.  It takes as input the previous pagerank values calculated for each user.  This script also calculates a 'max\_diff' value that is the largest change in pagerank for any user in the graph.  This value is used by the control script to determine if its worth running another iteration to calculate even more accurate pagerank values.
+This pig script calculates updated pagerank values for each node in the graph.  It takes as input the previous pagerank values calculated for each node.  This script also calculates a 'max\_diff' value that is the largest change in pagerank for any node in the graph.  This value is used by the control script to determine if its worth running another iteration to calculate even more accurate pagerank values.
 
-### pagerank\_postprocess.pig
+### pagerank\_postprocess\_with\_name\_join.pig
 
-This pig script takes the final pagerank values calculated for each user and writes the top 1000 users and their pageranks to S3.
+This pig script takes final set of nodes and their pageranks and joins it to an index mapping a node ID to a human-readable name. It then outputs the TOP_N nodes by pagerank to S3.
+
+### pagerank\_postprocess\_without\_name\_join.pig
+
+This pigscript outputs the TOP_N nodes by pagerank to S3 but _does not_ join to any name index. This is for nodes which have human-readable identifiers already.
 
 # Pagerank Parameters
 
@@ -67,3 +82,31 @@ The damping factor determines the variance of the final output pageranks.  This 
 ## Convergence Threshold
 
 Pagerank is an iterative algorithm where each run uses the previous run's results.  It stops when the maximum difference of a user's pagerank from one iteration to the next is less than the CONVERGENCE\_FACTOR.
+
+## Maximum Number of Iterations
+
+Some graphs take many iterations to mathematically converge, but the approximation of Pagerank after a reasonable number of iterations is often good enough. The iteration therefore also stops after MAX_NUM_ITERATIONS even if it is still over CONVERGENCE_THRESHOLD.
+
+# Using your own data
+
+## Generate a graph
+
+To run PageRank on your own data, you must first generate a directed graph from your data. The pigscript `my\_preprocessing\_script.pig` has some code snippets to help you get started. Your output should have a schema:
+
+    from, to, weight -- from and to can be int, long, or chararray; weight can be int, long, float, or double
+
+`from` and `to` can be of type int, long, chararray, or bytearray; `weight` can be of type int, long, float, or double. Your output can have any delimiter (you will specify your choice in the controlscript); tabs are default for PigStorage.
+
+If your graph is undirected, you must make two records for every connection, one from A to B and another from B to A. If your graph is unweighted, simply make every weight 1.0.
+
+## Configuring the controlscript
+
+Next, edit the controlscript `my-pagerank.py` to use your data. Each parameter that needs to be set is listed in the template; it will not run unless you set each one.
+
+## Run your controlscript
+
+Finally, to run PageRank on your data, do:
+
+    mortar run my-pagerank --cluster-size N
+
+where N is an appropriate number for the size of your data.

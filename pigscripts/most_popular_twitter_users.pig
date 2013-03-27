@@ -6,14 +6,18 @@
 
 %default EDGES_INPUT_PATH 's3n://mortar-example-data/twitter-pagerank/twitter_user_graph/*.gz'
 %default USERNAMES_INPUT_PATH 's3n://mortar-example-data/twitter-pagerank/twitter_usernames.gz'
-%default EDGES_OUTPUT_PATH 's3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/twitter_influential_user_graph.gz'
-%default USERNAMES_OUTPUT_PATH 's3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/twitter_influential_usernames.gz'
+
+%default EDGES_OUTPUT_PATH 's3n://jpacker-dev/twitter-pagerank/twitter_influential_user_graph.gz'
+%default USERNAMES_OUTPUT_PATH 's3n://jpacker-dev/twitter-pagerank/twitter_influential_usernames.gz'
+-- %default EDGES_OUTPUT_PATH 's3n://mortar-example-output-data/twitter-pagerank/twitter_influential_user_graph.gz'
+-- %default USERNAMES_OUTPUT_PATH 's3n://mortar-example-output-data/twitter-pagerank/twitter_influential_usernames.gz'
+
 %default N 100000
 
 edges                   =   LOAD '$EDGES_INPUT_PATH' USING PigStorage() 
-                                AS (user: int, follower: int);
+                                AS (user: chararray, follower: chararray);
 usernames               =   LOAD '$USERNAMES_INPUT_PATH' USING PigStorage(' ') 
-                                AS (user: int, username: chararray);
+                                AS (user: chararray, username: chararray);
 
 -- find the users with the most followers
 edges_by_user           =   GROUP edges BY user;
@@ -28,8 +32,9 @@ edges_jnd_1             =   JOIN edges BY user, influential_users BY user;
 followed_is_influential =   FOREACH edges_jnd_1 GENERATE edges::user AS user, edges::follower AS follower;
 edges_jnd_2             =   JOIN followed_is_influential BY follower, influential_users BY user;
 relevant_edges          =   FOREACH edges_jnd_2 GENERATE
-                                followed_is_influential::user AS user,
-                                followed_is_influential::follower AS follower;
+                                followed_is_influential::follower AS from,
+                                followed_is_influential::user AS to,
+                                1.0 AS weight: double;
 
 -- find the usernames of the influential users
 influential_user_ids    =   FOREACH influential_users GENERATE user;
@@ -41,5 +46,4 @@ influential_usernames   =   FOREACH influential_users_jnd GENERATE
 rmf $EDGES_OUTPUT_PATH;
 rmf $USERNAMES_OUTPUT_PATH;
 STORE relevant_edges INTO '$EDGES_OUTPUT_PATH' USING PigStorage();
--- Use space delimiter to keep consistent with the input dataset.
-STORE influential_usernames INTO '$USERNAMES_OUTPUT_PATH' USING PigStorage(' ');
+STORE influential_usernames INTO '$USERNAMES_OUTPUT_PATH' USING PigStorage();
