@@ -98,11 +98,11 @@ The damping factor determines the variance of the final output pageranks.  This 
 
 ## Convergence Threshold
 
-Pagerank is an iterative algorithm where each run uses the previous run's results.  It stops when the maximum difference of a user's pagerank from one iteration to the next is less than the CONVERGENCE\_FACTOR.
+Pagerank is an iterative algorithm where each run uses the previous run's results.  It stops when the maximum difference of a user's pagerank from one iteration to the next is less than the CONVERGENCE\_THRESHOLD.
 
 ## Maximum Number of Iterations
 
-Some graphs take many iterations to mathematically converge, but the approximation of Pagerank after a reasonable number of iterations is often good enough. The iteration therefore also stops after MAX_NUM_ITERATIONS even if it is still over CONVERGENCE_THRESHOLD.
+Some graphs take many iterations to mathematically converge, but the approximation of Pagerank after a reasonable number of iterations is often good enough. The iteration therefore also stops after MAX\_NUM\_ITERATIONS even if it is still over CONVERGENCE\_THRESHOLD.
 
 # Using your own data
 

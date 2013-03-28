@@ -1,4 +1,4 @@
-%default OUTPUT_PATH 's3n://$OUTPUT_BUCKET/$MORTAR_EMAIL_S3_ESCAPED/pagerank'
+%default OUTPUT_PATH 's3n://$OUTPUT_BUCKET/$MORTAR_EMAIL_S3_ESCAPED/$OUTPUT_DIRECTORY'
 %default NODE_NAMES_INPUT_DELIMITER '\\t'
 
 final_pageranks     =   LOAD '$PAGERANKS_INPUT_PATH' USING PigStorage() AS (node: chararray, pagerank: double);
