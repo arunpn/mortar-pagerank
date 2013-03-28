@@ -4,7 +4,7 @@ from org.apache.pig.scripting import Pig
 # Pagerank Parameters - See README.md for more information.
 # ---------------------------------------------------------
 
-DAMPING_FACTOR        = 0.85
+DAMPING_FACTOR        = 0.7
 CONVERGENCE_THRESHOLD = 0.0005
 MAX_NUM_ITERATIONS    = 7
 
