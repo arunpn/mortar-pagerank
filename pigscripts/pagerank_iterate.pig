@@ -1,5 +1,8 @@
 -- Adapted from Alan Gates' Programming Pig - http://ofps.oreilly.com/titles/9781449302641/embedding.html
 
+REGISTER 's3n://jpacker-dev/jar/datafu-0.0.9.jar';
+DEFINE Enumerate datafu.pig.bags.Enumerate('1');
+
 previous_pageranks      =   LOAD '$INPUT_PATH' USING PigStorage()
                             AS (node: chararray, 
                                 pagerank: double, 
@@ -20,14 +23,24 @@ new_pageranks           =   FOREACH cogrouped GENERATE
                                 ((1.0 - $DAMPING_FACTOR) / $NUM_NODES)
                                     + $DAMPING_FACTOR * SUM(outbound_pageranks.pagerank) AS pagerank,
                                 FLATTEN(previous_pageranks.edges) AS edges,
-                                FLATTEN(previous_pageranks.sum_of_edge_weights) AS sum_of_edge_weights, 
-                                FLATTEN(previous_pageranks.pagerank) AS previous_pagerank;
+                                FLATTEN(previous_pageranks.sum_of_edge_weights) AS sum_of_edge_weights;
 
-no_nulls                =   FILTER new_pageranks BY pagerank is not null AND previous_pagerank is not null;
-pagerank_diffs          =   FOREACH no_nulls GENERATE ABS(pagerank - previous_pagerank);
-max_diff                =   FOREACH (GROUP pagerank_diffs ALL) GENERATE MAX($1);
+previous_projected      =   FOREACH previous_pageranks GENERATE node, pagerank;
+previous_ordered        =   ORDER previous_projected BY pagerank DESC;
+previous_enumerated     =   FOREACH (GROUP previous_ordered ALL)
+                            GENERATE FLATTEN(Enumerate($1)) AS (node, pagerank, rank);
+
+new_projected           =   FOREACH new_pageranks GENERATE node, pagerank;
+new_ordered             =   ORDER new_projected BY pagerank DESC;
+new_enumerated          =   FOREACH (GROUP new_ordered ALL)
+                            GENERATE FLATTEN(Enumerate($1)) AS (node, pagerank, rank);
+
+old_vs_new_ranks        =   JOIN previous_enumerated BY node, new_enumerated BY node;
+rank_changes            =   FOREACH old_vs_new_ranks
+                            GENERATE ABS(new_enumerated::rank - previous_enumerated::rank);
+aggregate_rank_change   =   FOREACH (GROUP rank_changes ALL) GENERATE SUM($1);
 
 rmf $PAGERANKS_OUTPUT_PATH;
-rmf $MAX_DIFF_OUTPUT_PATH;
+rmf $AGG_RANK_CHANGE_OUTPUT_PATH;
 STORE new_pageranks INTO '$PAGERANKS_OUTPUT_PATH' USING PigStorage();
-STORE max_diff INTO '$MAX_DIFF_OUTPUT_PATH' USING PigStorage();
+STORE aggregate_rank_change INTO '$AGG_RANK_CHANGE_OUTPUT_PATH' USING PigStorage();

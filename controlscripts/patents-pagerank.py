@@ -1,13 +1,5 @@
 from org.apache.pig.scripting import Pig
 
-# ---------------------------------------------------------
-# Pagerank Parameters - See README.md for more information.
-# ---------------------------------------------------------
-
-DAMPING_FACTOR        = 0.7
-CONVERGENCE_THRESHOLD = 0.0005
-MAX_NUM_ITERATIONS    = 7
-
 # ----------------
 # Input Parameters
 # ----------------
@@ -16,13 +8,26 @@ MAX_NUM_ITERATIONS    = 7
 EDGES_INPUT                      = "s3n://jpacker-dev/patent-organization-citation-graph"
 # The delimiter character for the edges data. The empty string means use the default tab delimiter.
 EDGES_INPUT_DELIMITER            = ""
-# Whether to join the output with an index of node ids to human-readable node names.
+
+# Whether to join the output with an index of node-ids to human-readable node names.
+# The node-id to name index has the schema: "node, node_name",
+# ex: "123    Barack Obama" (with the delimiter of your choice)
 # If your node names are already human-readable, you can set this to false and set NODE_NAMES_INPUT to an empty string.
+
 POSTPROCESS_JOIN_WITH_NODE_NAMES = False
-# The node id to name index has the schema "node, node_name".
 NODE_NAMES_INPUT                 = ""
-# The delimiter character for the node id to name index. The empty string means use the default tab delmiter.
 NODE_NAMES_INPUT_DELIMITER       = ""
+
+# ----------------------------------------------------------
+# Iteration Parameters -- see README.md for more information
+# ----------------------------------------------------------
+
+DAMPING_FACTOR        = 0.7
+CONVERGENCE_THRESHOLD = 0.00005
+MAX_NUM_ITERATIONS    = 12
+
+# Temporary data is stored in HDFS for better performance
+HDFS_OUTPUT_PREFIX    = "hdfs:///patents-pagerank"
 
 # -----------------
 # Output Parameters
@@ -44,15 +49,14 @@ POSTPROCESS_SCRIPT_WITH_NAME_JOIN    = "../pigscripts/pagerank_postprocess_with_
 POSTPROCESS_SCRIPT_WITHOUT_NAME_JOIN = "../pigscripts/pagerank_postprocess_without_name_join.pig"
 
 # Temporary Data Paths - Use HDFS for better performance
-HDFS_OUTPUT_PREFIX         = "hdfs:///patents_pagerank"
-PREPROCESS_PAGERANKS       = HDFS_OUTPUT_PREFIX + "/preprocess/pageranks"
-PREPROCESS_NUM_NODES       = HDFS_OUTPUT_PREFIX + "/preprocess/num_nodes"
-ITERATION_PAGERANKS_PREFIX = HDFS_OUTPUT_PREFIX + "/iteration/pageranks_"
-ITERATION_MAX_DIFF_PREFIX  = HDFS_OUTPUT_PREFIX + "/iteration/max_diff_"
+PREPROCESS_PAGERANKS          = HDFS_OUTPUT_PREFIX + "/preprocess/pageranks"
+PREPROCESS_NUM_NODES          = HDFS_OUTPUT_PREFIX + "/preprocess/num_nodes"
+ITERATION_PAGERANKS_PREFIX    = HDFS_OUTPUT_PREFIX + "/iteration/pageranks_"
+ITERATION_RANK_CHANGES_PREFIX = HDFS_OUTPUT_PREFIX + "/iteration/aggregate_rank_change_"
 
-# -------------------------
-# Pagerank Control Function
-# -------------------------
+# -----------------------------------------------------------------------------------------------
+# Pagerank Control Function -- you shouldn't need to change this unless you want to add new logic
+# -----------------------------------------------------------------------------------------------
 
 def run_pagerank():
     """
@@ -81,8 +85,9 @@ def run_pagerank():
     preprocess_stats = preprocess_bound.runSingle()
 
     # Update convergence threshold based on the size of the graph (number of nodes)
-    num_nodes = int(str(preprocess_stats.result("num_nodes").iterator().next().get(0)))
-    convergence_threshold = CONVERGENCE_THRESHOLD / num_nodes
+    num_nodes = long(str(preprocess_stats.result("num_nodes").iterator().next().get(0)))
+    convergence_threshold = long(CONVERGENCE_THRESHOLD * num_nodes * num_nodes)
+    print "Calculated convergence threshold for %d nodes: %d" % (num_nodes, convergence_threshold) 
 
     # Iteration step:
     iteration = Pig.compileFromFile(PAGERANK_ITERATE_SCRIPT)
@@ -92,27 +97,30 @@ def run_pagerank():
         # Append the iteration number to the input/output stems
         iteration_input = PREPROCESS_PAGERANKS if i == 0 else (ITERATION_PAGERANKS_PREFIX + str(i-1))
         iteration_pageranks_output = ITERATION_PAGERANKS_PREFIX + str(i)
-        iteration_max_diff_output = ITERATION_MAX_DIFF_PREFIX + str(i)
+        iteration_rank_changes_output = ITERATION_RANK_CHANGES_PREFIX + str(i)
 
         iteration_bound = iteration.bind({
             "INPUT_PATH": iteration_input,
             "DAMPING_FACTOR": DAMPING_FACTOR,
             "NUM_NODES": num_nodes,
             "PAGERANKS_OUTPUT_PATH": iteration_pageranks_output,
-            "MAX_DIFF_OUTPUT_PATH": iteration_max_diff_output
+            "AGG_RANK_CHANGE_OUTPUT_PATH": iteration_rank_changes_output
         })
         iteration_stats = iteration_bound.runSingle()
 
-        # If we're below the convergence_threshold break out of the loop.
-        max_diff = float(str(iteration_stats.result("max_diff").iterator().next().get(0)))
-        if max_diff < CONVERGENCE_THRESHOLD:
-            print "Max diff %s under convergence threshold. Stopping." % max_diff
+        # If we're below the convergence threshold break out of the loop.
+        aggregate_rank_change = long(str(iteration_stats.result("aggregate_rank_change").iterator().next().get(0)))
+        if aggregate_rank_change < convergence_threshold:
+            print "Sum of ordering-rank changes %d under convergence threshold %d. Stopping." \
+                   % (aggregate_rank_change, convergence_threshold)
             break
         elif i == MAX_NUM_ITERATIONS-1:
-            print "Max diff %s above convergence threshold but hit max number of iterations.  Stopping." \
-                    % max_diff
+            print ("Sum of ordering-rank changes %d " % aggregate_rank_change) + \
+                  ("above convergence threshold %d but hit max number of iterations. " % convergence_threshold) + \
+                   "Stopping."
         else:
-            print "Max diff %s above convergence threshold. Continuing." % max_diff
+            print "Sum of ordering-rank changes %d above convergence threshold %d. Continuing." \
+                   % (aggregate_rank_change, convergence_threshold)
 
     iteration_pagerank_result = ITERATION_PAGERANKS_PREFIX + str(i)
 
@@ -134,7 +142,7 @@ def run_pagerank():
     # If we are joining with a name index, set parameters used by that script
     if (POSTPROCESS_JOIN_WITH_NODE_NAMES):
         postprocess_params["NODE_NAMES_INPUT_PATH"] = NODE_NAMES_INPUT
-        if len (NODE_NAMES_INPUT_DELIMITER) > 0:
+        if len(NODE_NAMES_INPUT_DELIMITER) > 0:
             postprocess_params["NODE_NAMES_INPUT_DELIMITER"] = NODE_NAMES_INPUT_DELIMITER
 
     postprocess_bound = postprocess.bind(postprocess_params)
