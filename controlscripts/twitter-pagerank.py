@@ -16,14 +16,14 @@ EDGES_INPUT_DELIMITER            = ""
 
 POSTPROCESS_JOIN_WITH_NODE_NAMES = True
 NODE_NAMES_INPUT                 = "s3n://jpacker-dev/twitter-pagerank/twitter_influential_usernames.gz"
-NODE_NAMES_INPUT_DELIMITER       = "" # again, empty string means tab delimiter 
+NODE_NAMES_INPUT_DELIMITER       = "" # empty string means use default tab delimiter 
 
 # ----------------------------------------------------------
 # Iteration Parameters -- see README.md for more information
 # ----------------------------------------------------------
 
 DAMPING_FACTOR        = 0.85
-CONVERGENCE_THRESHOLD = 0.00005
+CONVERGENCE_THRESHOLD = 0.001
 MAX_NUM_ITERATIONS    = 12
 
 # Temporary data is stored in HDFS for better performance

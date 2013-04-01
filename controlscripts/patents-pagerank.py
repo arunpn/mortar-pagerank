@@ -16,14 +16,14 @@ EDGES_INPUT_DELIMITER            = ""
 
 POSTPROCESS_JOIN_WITH_NODE_NAMES = False
 NODE_NAMES_INPUT                 = ""
-NODE_NAMES_INPUT_DELIMITER       = ""
+NODE_NAMES_INPUT_DELIMITER       = "" # empty string means use default tab delimiter 
 
 # ----------------------------------------------------------
 # Iteration Parameters -- see README.md for more information
 # ----------------------------------------------------------
 
 DAMPING_FACTOR        = 0.7
-CONVERGENCE_THRESHOLD = 0.00005
+CONVERGENCE_THRESHOLD = 0.0001
 MAX_NUM_ITERATIONS    = 12
 
 # Temporary data is stored in HDFS for better performance
@@ -35,7 +35,7 @@ HDFS_OUTPUT_PREFIX    = "hdfs:///patents-pagerank"
 
 OUTPUT_BUCKET    = "mortar-example-output-data"
 OUTPUT_DIRECTORY = "patents-pagerank"
-NUM_TOP_NODES    = 100  # The number of nodes from your graph with with the highest pagerank 
+NUM_TOP_NODES    = 1000 # The number of nodes from your graph with with the highest pagerank 
                         # to be returned in the final result.
 
 # ------------------------------------------------------------------

@@ -1,10 +1,3 @@
-# TODO
-
-- Cluster size and expected running time info
-- Update all paths in README and in scripts from jpacker-dev to production ready mortar-examples
-- Rename this repo "mortar-pagerank"
-- QA all the things
-
 # Welcome to Mortar!
 
 Mortar is a platform-as-a-service for Hadoop.  With Mortar, you can run jobs on Hadoop using Apache Pig and Python without any special training.  You create your project using the Mortar Development Framework, deploy code using the Git revision control system, and Mortar does the rest.
@@ -39,7 +32,7 @@ This script runs on a graph of patent citations for US patents granted between 2
 
 The patent data we're using is generated from public information made available in XML form by the United States Patent Office (USPTO) and hosted by Google [here](http://www.google.com/googlebooks/uspto-patents-grants-biblio.html). We parsed the XML into PigStorage format at put it up at S3 LOCATION. There is actually a lot of information beyond just the citations which we don't use in this project--see the LOAD\_PATENTS macro in `./macros/patents.pig` to see a schema of the available information.
 
-The script will finish in about SOME TIME on an N-node cluster.
+The script will finish in a little under an hour on an 2-node cluster.
 
 # The Pagerank Algorithm
 
