@@ -114,10 +114,16 @@ If your graph is undirected, you must make two records for every connection, one
 
 Next, edit the controlscript `my-pagerank.py` to use your data. Each parameter that needs to be set is listed and explained in the template.
 
+If your data is small (< 250 MB ot so), you can follow the instructions in the file to configure it to run in Mortar's "local mode". Local mode installs Pig and Jython so you can run your script on your local machine. This allows you to avoid the overhead of Hadoop scheduling jobs on a cluster.
+
 ## Run your controlscript
 
-Finally, to run Pagerank on your data, do:
+Once you have your controlscript configured, you can have a cluster calculate Pageranks for your data using the command:
 
     mortar run my-pagerank --cluster-size N
 
-where N is an appropriate number for the size of your data.
+where N is an appropriate number for the size of your data (try 3 for each GB of data you have).
+
+Alternatively, if you configured your controlscript to use local mode, you can run the script on your local machine using the command:
+
+   mortar local:run my-pagerank

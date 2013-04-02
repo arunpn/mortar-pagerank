@@ -11,9 +11,8 @@ MAX_NUM_ITERATIONS    = 20
 # Temporary data is stored in HDFS for better performance
 TEMPORARY_OUTPUT_PREFIX = "hdfs:///patents-pagerank"
 
-# Final output is stored to s3
-OUTPUT_BUCKET    = "mortar-example-output-data"
-OUTPUT_DIRECTORY = "patents-pagerank"
+# Final output is stored to S3.
+OUTPUT_PATH = "s3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/patents-pagerank"
 
 if __name__ == "__main__":
     pagerank = Pagerank(EDGES_INPUT,
@@ -21,6 +20,5 @@ if __name__ == "__main__":
                         convergence_threshold=CONVERGENCE_THRESHOLD,
                         max_num_iterations=MAX_NUM_ITERATIONS,
                         temporary_output_prefix=TEMPORARY_OUTPUT_PREFIX,
-                        output_bucket=OUTPUT_BUCKET,
-                        output_directory=OUTPUT_DIRECTORY)
+                        output_path=OUTPUT_PATH)
     pagerank.run_pagerank()
