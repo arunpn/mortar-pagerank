@@ -9,7 +9,7 @@ CONVERGENCE_THRESHOLD = 0.0001
 MAX_NUM_ITERATIONS    = 20
 
 # Temporary data is stored in HDFS for better performance
-TEMPORARY_OUTPUT_PREFIX    = "hdfs:///patents-pagerank"
+TEMPORARY_OUTPUT_PREFIX = "hdfs:///patents-pagerank"
 
 # Final output is stored to s3
 OUTPUT_BUCKET    = "mortar-example-output-data"

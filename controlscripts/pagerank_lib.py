@@ -4,7 +4,9 @@ class Pagerank:
     def __init__(self, edges_input, \
                        damping_factor=0.85, convergence_threshold=0.0001, max_num_iterations=20, \
                        temporary_output_prefix="hdfs://pig-pagerank", \
-                       output_bucket="mortar-example-output-data", output_directory="pagerank", \
+                       local_output_path=None, \
+                       output_bucket="mortar-example-output-data",
+                       output_directory="pagerank", \
                        preprocessing_script="../pigscripts/pagerank_preprocess.pig", \
                        iteration_script="../pigscripts/pagerank_iterate.pig", \
                        postprocessing_script="../pigscripts/pagerank_postprocess.pig"):
@@ -15,6 +17,7 @@ class Pagerank:
         self.max_num_iterations = max_num_iterations
         
         self.temporary_output_prefix = temporary_output_prefix
+        self.local_output_path = local_output_path
         self.output_bucket = output_bucket
         self.output_directory = output_directory
         
@@ -93,10 +96,11 @@ class Pagerank:
         # Postprocesing step:
         print "Starting postprocessing step."
         postprocess = Pig.compileFromFile(self.postprocessing_script)
-        postprocess_params = {
-            "PAGERANKS_INPUT_PATH": iteration_pagerank_result,
-            "OUTPUT_BUCKET": self.output_bucket,
-            "OUTPUT_DIRECTORY": self.output_directory
-        }
+        postprocess_params = { "PAGERANKS_INPUT_PATH": iteration_pagerank_result }
+        if self.local_output_path == None:
+            postprocess_params["OUTPUT_BUCKET"] = self.output_bucket
+            postprocess_params["OUTPUT_DIRECTORY"] = self.output_directory
+        else:
+            postprocess_params["OUTPUT_PATH"] = self.local_output_path
         postprocess_bound = postprocess.bind(postprocess_params)
         postprocess_stats = postprocess_bound.runSingle()
