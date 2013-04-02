@@ -74,9 +74,6 @@ def run_pagerank():
         "PAGERANKS_OUTPUT_PATH": PREPROCESS_PAGERANKS,
         "NUM_NODES_OUTPUT_PATH": PREPROCESS_NUM_NODES
     }
-    if len(EDGES_INPUT_DELIMITER) > 0:
-        preprocess_params["INPUT_DELIMITER"] = EDGES_INPUT_DELIMITER
-    # otherwise use the default tab delimiter
     preprocess_bound = preprocess.bind(preprocess_params)
     preprocess_stats = preprocess_bound.runSingle()
 
@@ -138,8 +135,6 @@ def run_pagerank():
     # If we are joining with a name index, set parameters used by that script
     if (POSTPROCESS_JOIN_WITH_NODE_NAMES):
         postprocess_params["NODE_NAMES_INPUT_PATH"] = NODE_NAMES_INPUT
-        if len(NODE_NAMES_INPUT_DELIMITER) > 0:
-            postprocess_params["NODE_NAMES_INPUT_DELIMITER"] = NODE_NAMES_INPUT_DELIMITER
 
     postprocess_bound = postprocess.bind(postprocess_params)
     postprocess_stats = postprocess_bound.runSingle()
