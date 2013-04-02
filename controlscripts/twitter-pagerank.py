@@ -8,7 +8,7 @@ from org.apache.pig.scripting import Pig
 EDGES_INPUT                      = "s3n://jpacker-dev/twitter-pagerank/twitter_influential_user_graph.gz"
 
 # Whether to join the output with an index of node-ids to human-readable node names.
-# The node-id to name index has the schema: "node, node_name" and a tab delimiter, ex: "123    Barack Obama".
+# The node-id to name index has the schema: "node, node_name" and a tab delimiter, ex: "123	Barack Obama".
 # If your node names are already human-readable, you can set this to false and set NODE_NAMES_INPUT to an empty string.
 
 POSTPROCESS_JOIN_WITH_NODE_NAMES = True
