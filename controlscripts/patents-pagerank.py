@@ -4,19 +4,15 @@ from org.apache.pig.scripting import Pig
 # Input Parameters
 # ----------------
 
-# A directed graph with the schema "from, to, weight"
+# A directed graph with the schema "from, to, weight" and a tab delimiter
 EDGES_INPUT                      = "s3n://jpacker-dev/patent-organization-citation-graph"
-# The delimiter character for the edges data. The empty string means use the default tab delimiter.
-EDGES_INPUT_DELIMITER            = ""
 
 # Whether to join the output with an index of node-ids to human-readable node names.
-# The node-id to name index has the schema: "node, node_name",
-# ex: "123    Barack Obama" (with the delimiter of your choice)
+# The node-id to name index has the schema: "node, node_name" and a tab delimiter, ex: "123	Barack Obama".
 # If your node names are already human-readable, you can set this to false and set NODE_NAMES_INPUT to an empty string.
 
 POSTPROCESS_JOIN_WITH_NODE_NAMES = False
 NODE_NAMES_INPUT                 = ""
-NODE_NAMES_INPUT_DELIMITER       = "" # empty string means use default tab delimiter 
 
 # ----------------------------------------------------------
 # Iteration Parameters -- see README.md for more information

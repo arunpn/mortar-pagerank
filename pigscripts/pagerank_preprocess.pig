@@ -1,6 +1,4 @@
-%default INPUT_DELIMITER '\\t'
-
-edges               =   LOAD '$INPUT_PATH' USING PigStorage('$INPUT_DELIMITER')
+edges               =   LOAD '$INPUT_PATH' USING PigStorage()
                         AS (from: chararray, to: chararray, weight: double);
 nodes               =   GROUP edges BY from;
 num_nodes           =   FOREACH (GROUP nodes ALL) GENERATE COUNT($1) AS N;

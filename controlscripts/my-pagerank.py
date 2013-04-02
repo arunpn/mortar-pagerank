@@ -4,7 +4,7 @@ from org.apache.pig.scripting import Pig
 # Input Parameters
 # ----------------
 
-# A directed graph with the schema "from, to, weight"
+# A directed graph with the schema "from, to, weight" and a tab delimiter.
 #
 # "from" and "to" can be of datatypes int, long, chararray, and bytearray
 # "weight" can be of datatypes int, long, float, and double
@@ -13,26 +13,18 @@ from org.apache.pig.scripting import Pig
 # If your graph is unweighted, simply set each weight to 1.0
 EDGES_INPUT                      = "s3n://my-bucket/path/to/my/graph"
 
-# The delimiter character for the edges data. The empty string means use the default tab delimiter.
-EDGES_INPUT_DELIMITER            = ""
-# An example of using a different delimiter
-# EDGES_INPUT_DELIMITER           = "|"
-
 # You can optionally join your pagerank output with an index of node-ids to human-readable node names
 # to get a better sense of what your output actually is. If you do not need to do this, or your node-ids
 # are already human-readable form, you can leave these parameters as follows:
 
 POSTPROCESS_JOIN_WITH_NODE_NAMES = False
 NODE_NAMES_INPUT                 = ""
-NODE_NAMES_INPUT_DELIMITER       = ""
 
 # If you do wish do to such a join, set the parameters like this.
-# Your index should have the schema: "node, node_name",
-# ex: "123    Barack Obama" (with the delimiter of your choice)
+# Your index ndex should have the schema: "node, node_name" and a tab delimiter, ex: "123    Barack Obama"
 
 # POSTPROCESS_JOIN_WITH_NODE_NAMES = True
 # NODE_NAMES_INPUT                 = "s3n://my-bucket/path/to/my/name/index"
-# NODE_NAMES_INPUT_DELIMITER       = "|" # or set to blank to use default tab delimiter
 
 # ----------------------------------------------------------
 # Iteration Parameters -- see README.md for more information
@@ -94,9 +86,6 @@ def run_pagerank():
         "PAGERANKS_OUTPUT_PATH": PREPROCESS_PAGERANKS,
         "NUM_NODES_OUTPUT_PATH": PREPROCESS_NUM_NODES
     }
-    if len(EDGES_INPUT_DELIMITER) > 0:
-        preprocess_params["INPUT_DELIMITER"] = EDGES_INPUT_DELIMITER
-    # otherwise use the default tab delimiter
     preprocess_bound = preprocess.bind(preprocess_params)
     preprocess_stats = preprocess_bound.runSingle()
 
@@ -158,8 +147,6 @@ def run_pagerank():
     # If we are joining with a name index, set parameters used by that script
     if (POSTPROCESS_JOIN_WITH_NODE_NAMES):
         postprocess_params["NODE_NAMES_INPUT_PATH"] = NODE_NAMES_INPUT
-        if len(NODE_NAMES_INPUT_DELIMITER) > 0:
-            postprocess_params["NODE_NAMES_INPUT_DELIMITER"] = NODE_NAMES_INPUT_DELIMITER
 
     postprocess_bound = postprocess.bind(postprocess_params)
     postprocess_stats = postprocess_bound.runSingle()

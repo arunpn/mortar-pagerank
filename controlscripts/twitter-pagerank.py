@@ -4,19 +4,15 @@ from org.apache.pig.scripting import Pig
 # Input Parameters
 # ----------------
 
-# A directed graph with the schema "from, to, weight"
+# A directed graph with the schema "from, to, weight" and a tab delimiter.
 EDGES_INPUT                      = "s3n://jpacker-dev/twitter-pagerank/twitter_influential_user_graph.gz"
-# The delimiter character for the edges data. The empty string means use the default tab delimiter.
-EDGES_INPUT_DELIMITER            = ""
 
 # Whether to join the output with an index of node-ids to human-readable node names.
-# The node-id to name index has the schema: "node, node_name",
-# ex: "123    Barack Obama" (with the delimiter of your choice)
+# The node-id to name index has the schema: "node, node_name" and a tab delimiter, ex: "123    Barack Obama".
 # If your node names are already human-readable, you can set this to false and set NODE_NAMES_INPUT to an empty string.
 
 POSTPROCESS_JOIN_WITH_NODE_NAMES = True
 NODE_NAMES_INPUT                 = "s3n://jpacker-dev/twitter-pagerank/twitter_influential_usernames.gz"
-NODE_NAMES_INPUT_DELIMITER       = "" # empty string means use default tab delimiter 
 
 # ----------------------------------------------------------
 # Iteration Parameters -- see README.md for more information
@@ -78,9 +74,6 @@ def run_pagerank():
         "PAGERANKS_OUTPUT_PATH": PREPROCESS_PAGERANKS,
         "NUM_NODES_OUTPUT_PATH": PREPROCESS_NUM_NODES
     }
-    if len(EDGES_INPUT_DELIMITER) > 0:
-        preprocess_params["INPUT_DELIMITER"] = EDGES_INPUT_DELIMITER
-    # otherwise use the default tab delimiter
     preprocess_bound = preprocess.bind(preprocess_params)
     preprocess_stats = preprocess_bound.runSingle()
 
@@ -142,8 +135,6 @@ def run_pagerank():
     # If we are joining with a name index, set parameters used by that script
     if (POSTPROCESS_JOIN_WITH_NODE_NAMES):
         postprocess_params["NODE_NAMES_INPUT_PATH"] = NODE_NAMES_INPUT
-        if len(NODE_NAMES_INPUT_DELIMITER) > 0:
-            postprocess_params["NODE_NAMES_INPUT_DELIMITER"] = NODE_NAMES_INPUT_DELIMITER
 
     postprocess_bound = postprocess.bind(postprocess_params)
     postprocess_stats = postprocess_bound.runSingle()
