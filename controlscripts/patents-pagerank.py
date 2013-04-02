@@ -4,7 +4,7 @@ from org.apache.pig.scripting import Pig
 # Input Parameters
 # ----------------
 
-# A directed graph with the schema "from, to, weight" and a tab delimiter
+# A directed graph with the schema "from, to, weight" and a tab delimiter.
 EDGES_INPUT                      = "s3n://jpacker-dev/patent-organization-citation-graph"
 
 # Whether to join the output with an index of node-ids to human-readable node names.
