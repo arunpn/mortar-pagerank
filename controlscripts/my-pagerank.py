@@ -39,7 +39,7 @@ NODE_NAMES_INPUT_DELIMITER       = ""
 # ----------------------------------------------------------
 
 DAMPING_FACTOR        = 0.85
-CONVERGENCE_THRESHOLD = 0.00005
+CONVERGENCE_THRESHOLD = 0.0001
 MAX_NUM_ITERATIONS    = 12
 
 # Temporary data is stored in HDFS for better performance
