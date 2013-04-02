@@ -20,13 +20,13 @@ Once everything is set up you can run the Twitter example by doing:
 
         mortar run twitter-pagerank --clustersize 5
 
-This script runs on the a graph of follower relationships between the 100k Twitter users with the most overall followers (as in, only relationships between users who are already known to be at least modestly influential are considered). The data comes from [What is Twitter, a Social Network or a News Media?](http://an.kaist.ac.kr/traces/WWW2010.html) and was generated in early 2010. The script will finish in about SOME TIME on an N-node cluster.
+This script runs on the a graph of follower relationships between the 100k Twitter users with the most overall followers (as in, only relationships between users who are already known to be at least modestly influential are considered). The data comes from [What is Twitter, a Social Network or a News Media?](http://an.kaist.ac.kr/traces/WWW2010.html) and was generated in early 2010. The script will finish in about two and a half hours a 5-node cluster.
 
 ## Patents Example
 
 You can run the Patents example by doing:
 
-        mortar run patents-pagerank --clustersize 5
+        mortar run patents-pagerank --clustersize 2
 
 This script runs on a graph of patent citations for US patents granted between 2007 and 2012. As the citation graph itself is very sparse, we reduce the graph so that nodes are organizations instead of individual patents: the edge between organization A and organization B has a weight equal to the number of patents filed by organization A which cite patents filed by organization B. The resulting reduced graph is actually quite small due to the short timeframe of the data.
 
