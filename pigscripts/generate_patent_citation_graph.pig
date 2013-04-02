@@ -1,8 +1,6 @@
 %default INPUT_PATH 's3n://jpacker-dev/patents-parsed'
 %default GRAPH_OUTPUT_PATH 's3n://jpacker-dev/patent-organization-citation-graph'
-%default ORGS_BY_NUM_CITATIONS 's3n://jpacker-dev/orgs-by-num-citations'
 
-REGISTER 's3n://jpacker-dev/jar/datafu-0.0.9.jar';
 IMPORT '../macros/patents.pig';
 
 patents             =   LOAD_PATENTS('$INPUT_PATH');
@@ -34,12 +32,5 @@ edges               =   FOREACH aggregate_org_links GENERATE
                             group.$1 AS to,
                             COUNT($1) AS weight;
 
-org_cit_counts      =   FOREACH (GROUP edges BY to) GENERATE
-                            group AS organization,
-                            SUM(edges.weight) AS num_citations;
-orgs_by_num_cits    =   ORDER org_cit_counts BY num_citations DESC;
-
 rmf $GRAPH_OUTPUT_PATH;
-rmf $ORGS_BY_NUM_CITATIONS;
 STORE edges INTO '$GRAPH_OUTPUT_PATH' USING PigStorage();
-STORE orgs_by_num_cits INTO '$ORGS_BY_NUM_CITATIONS' USING PigStorage();

@@ -28,11 +28,11 @@ You can run the Patents example by doing:
 
         mortar run patents-pagerank --clustersize 5
 
-This script runs on a graph of patent citations for US patents granted between 2007 and 2012. As the citation graph itself is very sparse, we reduce the graph so that nodes are organizations instead of individual patents: the edge between organization A and organization B has a weight equal to the number of patents filed by organization A which cite patents filed by organization B. The resulting reduced graph is actually quite small due to the short timeframe of the data: unfortunately, the USPTO seems to change their data format every few years, and we only had time to parse the most recent of these formats.
+This script runs on a graph of patent citations for US patents granted between 2007 and 2012. As the citation graph itself is very sparse, we reduce the graph so that nodes are organizations instead of individual patents: the edge between organization A and organization B has a weight equal to the number of patents filed by organization A which cite patents filed by organization B. The resulting reduced graph is actually quite small due to the short timeframe of the data.
 
-The patent data we're using is generated from public information made available in XML form by the United States Patent Office (USPTO) and hosted by Google [here](http://www.google.com/googlebooks/uspto-patents-grants-biblio.html). We parsed the XML into PigStorage format at put it up at S3 LOCATION. There is actually a lot of information beyond just the citations which we don't use in this project--see the LOAD\_PATENTS macro in `./macros/patents.pig` to see a schema of the available information.
+The patent data we're using is generated from public information made available in XML form by the United States Patent Office (USPTO) and hosted by Google [here](http://www.google.com/googlebooks/uspto-patents-grants-biblio.html). We parsed the XML into PigStorage format at put it up at s3://mortar-example-data/pagerank/patents/patent-data. There is actually a lot of information beyond just the citations which we don't use in this project--see the LOAD\_PATENTS macro in `./macros/patents.pig` to see a schema of the available information.
 
-The script will finish in a little under an hour on an 2-node cluster.
+The script will finish in a little under an hour on a 2-node cluster.
 
 # The Pagerank Algorithm
 
@@ -44,23 +44,23 @@ Pagerank is an iterative algorithm.  Each pass through the algorithm relies on t
 
 ## Control Scripts
 
-The files `./controlscripts/twitter-pagerank.py` and `./controlscripts/patents-pagerank.py` are the top level scripts that we run in Mortar to find Pageranks, for the Twitter graph and the Patent Citations graph respectively.  Using [Embedded Pig](http://help.mortardata.com/reference/pig/embedded_pig), this Jython code is responsible for running our various pig scripts in the correct order and with the correct parameters.
+The files `./controlscripts/twitter-pagerank.py` and `./controlscripts/patents-pagerank.py` are the top level scripts that we run in Mortar to find Pageranks, for the Twitter graph and the Patent Citations graph respectively. All they do is set parameters for shared code in `controlscripts/pagerank_lib.py` and call it. This shared code uses [Embedded Pig](http://help.mortardata.com/reference/pig/embedded_pig) to run our various pig scripts in the correct order and with the correct parameters.
 
-The file `./controlscripts/my-pagerank.py` is the template from which the pre-made controlscripts were developed from, and is a good starting point for configuring Pagerank to run on your own data.
+The file `./controlscripts/my-pagerank.py` is the template which you can configure to run Pagerank on your own data.
 
 For easier debugging of control scripts all print statements are included in the pig logs shown on the job details page in the Mortar web application.
 
 ## Pig Scripts
 
-This project contains seven pig scripts: three for generating graphs to use with Pagerank, two which implement the Pagerank algorithm, and two which optionally postprocess Pagerank output in different ways.
+This project contains seven pig scripts: three for generating graphs to use with Pagerank and three which implement the Pagerank algorithm.
 
 ### generate\_twitter\_graph.pig
 
-This pig script takes the full Twitter follower graph from 2010 and returns the subset of the graph that includes only the top 100 000 users.
+This pig script takes the full Twitter follower graph from 2010 and returns the subset of the graph that includes edges between the top 100 000 users by \# followers.
 
 ### generate\_patent\_citation\_graph.pig
 
-This pig script takes the US Patent Grant dataset (already in PigStorage form), projects from all the available information just the citation graph, and does the reduction so that each node is an organization instead of an individual patent, as described earlier. It also makes a list of the most-cited organizations: we use this as a 
+This pig script takes the US Patent Grant dataset (already in PigStorage form), projects from all the available information just the citation graph, and does the reduction so that each node is an organization instead of an individual patent, as described earlier.
 
 ### generate\_my\_graph.pig
 
@@ -74,13 +74,9 @@ This pig script takes an input graph and converts it into the format that we'll 
 
 This pig script calculates updated pagerank values for each node in the graph.  It takes as input the previous pagerank values calculated for each node.  This script also calculates a 'max\_diff' value that is the largest change in pagerank for any node in the graph.  This value is used by the control script to determine if its worth running another iteration to calculate even more accurate pagerank values.
 
-### pagerank\_postprocess\_with\_name\_join.pig
+### pagerank\_postprocess.pig
 
-This pig script takes the final iteration output of nodes and their pageranks and joins it to an index mapping each node ID to a human-readable name. It then outputs the TOP_N nodes by pagerank to S3.
-
-### pagerank\_postprocess\_without\_name\_join.pig
-
-This pig script takes the final iteration output of nodes and their pageranks and outputs the TOP_N nodes to S3. It _does not_ join to any name index. This is for nodes which have human-readable identifiers already.
+This pig script takes the last iteration output of nodes, projects out just the node-ids and their pageranks, orders them by pagerank, out stores the final output to S3.
 
 # Pagerank Parameters
 
@@ -96,7 +92,7 @@ The intermediate pageranks calculated by each iteration in the algorithm will co
 
 We make our convergence metric the sum of all of the "ordering-rank" changes of the pageranks. "ordering-rank" in this case means the pagerank's position in the ordering of all pageranks from greatest to least--so the highest pagerank has ordering-rank 1, and the least has ordering-rank N. A swap of ranks 2 and 5 would be two ordering-rank changes of magnitude |2-5| = 3, so it would add 2*3 = 6 to the sum.
 
-We converge when this sum of the ordering-rank changes from one iteration to the next is less than 0.00005 * (# nodes)^2. The squared term is because the maximum possible number of ordering-rank changes for N nodes is proportional to N^2. The constant term is arbitrarily chosen, so your data might work best with a different value. We found it to be appropriate for both the larger Twitter graph and the small patent graph.
+We converge when this sum of the ordering-rank changes from one iteration to the next is less than a parameter CONVERGENCE\_THRESHOLD * (# nodes)^2. The squared term is because the maximum possible number of ordering-rank changes for N nodes is proportional to N^2. The constant term is arbitrarily chosen, so you should decide how much accuracy is needed for your data.
 
 ## Maximum Number of Iterations
 
