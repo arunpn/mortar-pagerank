@@ -8,7 +8,7 @@ from pagerank_lib import Pagerank
 # If your graph is undirected, you must add two edges for each connection, ex. A to B and B to A
 # If your graph is unweighted, simply set each weight to 1.0
 #
-# If your input data is small (< 250 MB or so), you can configure this script to run in Mortar's "local mode"..
+# If your input data is small (< 250 MB or so), you can configure this script to run in Mortar's "local mode".
 # Local mode will install Pig and Jython onto your local machine
 # and run the script locally, which avoids the overhead of scheduling Hadoop jobs on a cluster.
 #
