@@ -110,7 +110,7 @@ To run Pagerank on your own data, you must first generate a directed graph from 
 
     from, to, weight
 
-`from` and `to` are the ids of the nodes the edge comes from and goes to respectively. They can be of type int, long, chararray, or bytearray. `weight` is a measure of the magnitude or significance of an edge. It can be of type int, long, float, or double. Your output can have any delimiter (you will specify your choice in the controlscript); tabs are default for PigStorage.
+`from` and `to` are the ids of the nodes the edge comes from and goes to respectively. They can be of type int, long, chararray, or bytearray. `weight` is a measure of the magnitude or significance of an edge. It can be of type int, long, float, or double. The fields should be tab-delimited (this is the default for PigStorage).
 
 If your graph is undirected, you must make two records for every connection, one from A to B and another from B to A. If your graph is unweighted, simply make every weight 1.0.
 
