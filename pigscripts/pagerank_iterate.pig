@@ -1,6 +1,6 @@
 -- Adapted from Alan Gates' Programming Pig - http://ofps.oreilly.com/titles/9781449302641/embedding.html
 
-REGISTER 's3n://jpacker-dev/jar/datafu-0.0.9.jar';
+REGISTER 's3n://mhc-software-mirror/datafu/datafu-0.0.9-SNAPSHOT.jar';
 DEFINE Enumerate datafu.pig.bags.Enumerate('1');
 
 previous_pageranks      =   LOAD '$INPUT_PATH' USING PigStorage()

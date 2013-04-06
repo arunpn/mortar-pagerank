@@ -1,7 +1,7 @@
 from pagerank_lib import Pagerank
 
 # A directed graph with the schema "from, to, weight" and a tab delimiter.
-EDGES_INPUT = "s3n://jpacker-dev/twitter-pagerank/twitter_influential_user_graph.gz"
+EDGES_INPUT = "s3n://mortar-example-data/twitter-pagerank/influential_user_graph.gz"
 
 # Iteration Parameters -- see README.md for more information
 DAMPING_FACTOR        = 0.85
