@@ -4,7 +4,7 @@ Mortar is a platform-as-a-service for Hadoop.  With Mortar, you can run jobs on 
 
 # Getting Started
 
-This Mortar project is a generic framework for calculating Pageranks for the nodes of any directed graph. There are two example scripts which demonstrate its use. `twitter-pagerank` runs Pagerank on a graph of Twitter follower relationships to find the most influential Twitter users. `patents-pagerank` runs Pagerank on a graph of patent citation relationships to find which organizations produce the most influential patents. Alternatively, you can configure the template script `my-pagerank` to run Pagerank on your own data (see the last section of this README). Regardless of which you choose, there are some steps to get started:
+This Mortar project is a generic framework for calculating Pageranks for the nodes of any directed graph. There are two example scripts which demonstrate its use. `patents-pagerank` runs Pagerank on a graph of patent citation relationships to find which organizations produce the most influential patents. `twitter-pagerank` runs Pagerank on a graph of Twitter follower relationships to find the most influential Twitter users. Alternatively, you can configure the template script `my-pagerank` to run Pagerank on your own data (see the last section of this README). Regardless of which you choose, there are some steps to get started:
 
 1. [Signup for a Mortar account](https://app.mortardata.com/signup)
 1. [Install the Mortar Development Framework](http://help.mortardata.com/#!/install_mortar_development_framework)
@@ -14,25 +14,23 @@ This Mortar project is a generic framework for calculating Pageranks for the nod
         cd mortar-pagerank
         mortar register mortar-pagerank
 
-## Twitter Example
-
-Once everything is set up you can run the Twitter example by doing:
-
-        mortar run twitter-pagerank --clustersize 5
-
-This script runs on the a graph of follower relationships between the 100k Twitter users with the most overall followers (as in, only relationships between users who are already known to be at least modestly influential are considered). The data comes from [What is Twitter, a Social Network or a News Media?](http://an.kaist.ac.kr/traces/WWW2010.html) and was generated in early 2010. The script will finish in about two and a half hours a 5-node cluster.
-
 ## Patents Example
 
-You can run the Patents example by doing:
+Once everything is set up, you can run the Patents example with the command:
 
-        mortar run patents-pagerank --clustersize 2
+        mortar run patents-pagerank --clustersize 2 --singlejobcluster
 
-This script runs on a graph of patent citations for US patents granted between 2007 and 2012. As the citation graph itself is very sparse, we reduce the graph so that nodes are organizations instead of individual patents: the edge between organization A and organization B has a weight equal to the number of patents filed by organization A which cite patents filed by organization B. The resulting reduced graph is actually quite small due to the short timeframe of the data.
+This script runs on a graph of patent citations for US patents granted between 2007 and 2012. As the citation graph itself is very sparse, we reduce the graph so that nodes are organizations instead of individual patents: the edge between organization A and organization B has a weight equal to the number of patents filed by organization A which cite patents filed by organization B. The script should finish in about 50 minutes on a 2-node cluster.
 
 The patent data we're using is generated from public information made available in XML form by the United States Patent Office (USPTO) and hosted by Google [here](http://www.google.com/googlebooks/uspto-patents-grants-biblio.html). We parsed the XML into PigStorage format at put it up at s3://mortar-example-data/pagerank/patents/patent-data. There is actually a lot of information beyond just the citations which we don't use in this project--see the LOAD\_PATENTS macro in `./macros/patents.pig` to see a schema of the available information.
 
-The script will finish in a little under an hour on a 2-node cluster.
+## Twitter Example
+
+You can run the Twitter example with the command:
+
+        mortar run twitter-pagerank --clustersize 4 --singlejobcluster
+
+This script runs on the a graph of follower relationships between the 25k Twitter users (40M edges) with the most overall followers (as in, only relationships between users who are already known to be at least modestly influential are considered). The data comes from [What is Twitter, a Social Network or a News Media?](http://an.kaist.ac.kr/traces/WWW2010.html) and was generated in early 2010. The script will finish in about an hour and a half on a 4-node cluster.
 
 # The Pagerank Algorithm
 
@@ -52,7 +50,7 @@ For easier debugging of control scripts all print statements are included in the
 
 ## Pig Scripts
 
-This project contains seven pig scripts: three for generating graphs to use with Pagerank and three which implement the Pagerank algorithm.
+This project contains six pig scripts: three for generating graphs to use with Pagerank and three which implement the Pagerank algorithm.
 
 ### generate\_twitter\_graph.pig
 
@@ -114,13 +112,13 @@ If your graph is undirected, you must make two records for every connection, one
 
 Next, edit the controlscript `my-pagerank.py` to use your data. Each parameter that needs to be set is listed and explained in the template.
 
-If your data is small (< 250 MB ot so), you can follow the instructions in the file to configure it to run in Mortar's "local mode". Local mode installs Pig and Jython so you can run your script on your local machine. This allows you to avoid the overhead of Hadoop scheduling jobs on a cluster.
+If your data is small (< 250 MB or so), you can follow the instructions in the file to configure it to run in Mortar's "local mode". Local mode installs Pig and Jython so you can run your script on your local machine. This allows you to run your Mortar project for free and avoids the overhead time of Hadoop scheduling jobs on a cluster.
 
 ## Run your controlscript
 
 Once you have your controlscript configured, you can have a cluster calculate Pageranks for your data using the command:
 
-    mortar run my-pagerank --cluster-size N
+    mortar run my-pagerank --clustersize N
 
 where N is an appropriate number for the size of your data (try 3 for each GB of data you have).
 

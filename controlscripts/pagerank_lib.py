@@ -4,7 +4,7 @@ class Pagerank:
     def __init__(self, edges_input, \
                        damping_factor=0.85, convergence_threshold=0.0001, max_num_iterations=20, \
                        temporary_output_prefix="hdfs://pig-pagerank", \
-                       output_path="s3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/pagerank", \
+                       output_path=None, \
                        preprocessing_script="../pigscripts/pagerank_preprocess.pig", \
                        iteration_script="../pigscripts/pagerank_iterate.pig", \
                        postprocessing_script="../pigscripts/pagerank_postprocess.pig"):
@@ -92,9 +92,10 @@ class Pagerank:
         # Postprocesing step:
         print "Starting postprocessing step."
         postprocess = Pig.compileFromFile(self.postprocessing_script)
-        postprocess_params = {
-            "PAGERANKS_INPUT_PATH": iteration_pagerank_result,
-            "OUTPUT_PATH": self.output_path
-        }
+        postprocess_params = { "PAGERANKS_INPUT_PATH": iteration_pagerank_result }
+        if self.output_path is not None: # otherwise, the script outputs to the default location,
+                                         # which is a special directory in s3://mortar-example-output-data
+                                         # permissioned for your Mortar account.
+            postprocess_params["OUTPUT_PATH"] = self.output_path
         postprocess_bound = postprocess.bind(postprocess_params)
         postprocess_stats = postprocess_bound.runSingle()

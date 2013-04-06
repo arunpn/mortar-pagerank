@@ -6,11 +6,9 @@
 
 %default EDGES_INPUT_PATH 's3n://mortar-example-data/twitter-pagerank/twitter_user_graph/*.gz'
 %default USERNAMES_INPUT_PATH 's3n://mortar-example-data/twitter-pagerank/twitter_usernames.gz'
+%default EDGES_OUTPUT_PATH 's3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/twitter-pagerank/influential_user_graph.gz'
 
-%default EDGES_OUTPUT_PATH 's3n://jpacker-dev/twitter-pagerank/twitter_influential_user_graph.gz'
--- %default EDGES_OUTPUT_PATH 's3n://mortar-example-output-data/twitter-pagerank/twitter_influential_user_graph.gz'
-
-%default N 100000
+%default N 25000
 
 edges                   =   LOAD '$EDGES_INPUT_PATH' USING PigStorage() 
                                 AS (user: chararray, follower: chararray);

@@ -1,5 +1,5 @@
-%default INPUT_PATH 's3n://jpacker-dev/patents-parsed'
-%default GRAPH_OUTPUT_PATH 's3n://jpacker-dev/patent-organization-citation-graph'
+%default INPUT_PATH 's3n://mortar-example-data/pagerank/patents-pagerank/patent_data'
+%default GRAPH_OUTPUT_PATH 's3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/patents-pagerank/patent_organization_citation_graph'
 
 IMPORT '../macros/patents.pig';
 
