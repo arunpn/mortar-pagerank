@@ -108,7 +108,7 @@ To run Pagerank on your own data, you must first generate a directed graph from 
 
 If your graph is undirected, you must make two records for every connection, one from A to B and another from B to A. If your graph is unweighted, simply make every weight 1.0.
 
-## Configuring the controlscript
+## Configure the controlscript
 
 Next, edit the controlscript `my-pagerank.py` to use your data. Each parameter that needs to be set is listed and explained in the template.
 
