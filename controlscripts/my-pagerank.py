@@ -20,7 +20,7 @@ from pagerank_lib import Pagerank
 # or run it locally using the command:
 #     mortar local:run my-pagerank
 #
-EDGES_INPUT                      = "s3n://my-bucket/path/to/my/graph"
+EDGES_INPUT = "s3n://my-bucket/path/to/my/graph"
 
 # Iteration Parameters
 DAMPING_FACTOR        = 0.85    # 1.0 - DAMPING_FACTOR is the change of teleporting to a random node at each iteration step
