@@ -1,12 +1,8 @@
-%default OUTPUT_PATH 's3n://$OUTPUT_BUCKET/$MORTAR_EMAIL_S3_ESCAPED/twitter-pagerank/pagerank'
+%default OUTPUT_PATH 's3n://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/pagerank_output'
 
-final_pageranks     =   LOAD '$PAGERANKS_INPUT_PATH' USING PigStorage() AS (user: int, pagerank: double);
-usernames           =   LOAD '$USERNAMES_INPUT_PATH' USING PigStorage(' ') AS (user: int, username: chararray);
-
-joined              =   JOIN final_pageranks BY user, usernames BY user;
-projected           =   FOREACH joined GENERATE usernames::username AS user, final_pageranks::pagerank AS pagerank;
-ordered             =   ORDER projected BY pagerank DESC;
-top_users           =   LIMIT ordered $TOP_N;
+final_pageranks     =   LOAD '$PAGERANKS_INPUT_PATH' USING PigStorage() AS (node: chararray, pagerank: double);
+non_null            =   FILTER final_pageranks BY (pagerank is not null);
+out                 =   ORDER non_null BY pagerank DESC;
 
 rmf $OUTPUT_PATH;
-STORE top_users INTO '$OUTPUT_PATH' USING PigStorage();
+STORE out INTO '$OUTPUT_PATH' USING PigStorage();
