@@ -31,7 +31,7 @@ CONVERGENCE_THRESHOLD = 0.0005  # See README.md for an explanation of the conver
 MAX_NUM_ITERATIONS    = 20      # Always stop after this number of iterations regardless of convergence.
 
 # Temporary data is stored into HDFS for better performance.
-TEMPORARY_OUTPUT_PREFIX = "hdfs:///patents-pagerank"
+TEMPORARY_OUTPUT_PREFIX = "hdfs:///my-pagerank"
 
 # Final output is stored to this location.
 OUTPUT_PATH = "s3n://my-bucket/output/path"
